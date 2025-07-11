@@ -1,0 +1,13 @@
+# --- global ---
+node_modules/
+dist/
+build/
+.cache/
+.expo/
+.env*
+# IDE
+.vscode/
+.idea/
+# macOS, Linux trash, etc.
+.DS_Store
+Thumbs.db
