@@ -94,9 +94,9 @@ export default function CardBookedTicket({ ticket, onCancelSuccess }) {
 
         {/* Left column */}
         <div className="flex flex-col gap-1 grow">
-          <span className="text-[11px] text-gray-400 break-all">
+          {/* <span className="text-[11px] text-gray-400 break-all">
             Booking ID:&nbsp;{ticket.id}
-          </span>
+          </span> */}
 
           <h2 className="text-lg md:text-2xl font-semibold text-gray-600">
             {ticket.route}

@@ -52,7 +52,7 @@ export default function DatePickerModal({
   return (
     <View className="bg-gray-100 rounded-lg px-2">
       {/* Tappable date display */}
-      <Pressable onPress={() => setShowPicker(true)} className="py-1">
+      <Pressable className="py-1">
         <Text className="text-gray-500 text-base">{formattedDate}</Text>
       </Pressable>
 
