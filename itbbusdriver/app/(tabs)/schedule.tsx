@@ -18,7 +18,6 @@ import {
   sendLiveTracking,
 } from "@/services/busDriverService";
 import dayjs from "dayjs";
-import LocationButton from "@/components/getLocationButton";
 import CardTrip from "@/components/cardTrip";
 import DatePickerModal from "@/components/datePickerComponent";
 import { Feather } from "@expo/vector-icons";
@@ -174,13 +173,13 @@ export default function ScheduleScreen() {
     <View className="flex-1 bg-white">
       {/* Header */}
       <View className="bg-blue-500 rounded-b-[40px] p-6">
-        <Text className="text-white text-xl font-bold text-center">
-          Schedule
+        <Text className="text-white text-xl font-bold text-center mt-10">
+          Schedules
         </Text>
         <DatePickerModal date={selectedDate} onChangeDate={setSelectedDate} />
 
         <View className="mt-2 bg-white p-3 rounded-xl">
-          <Text className="text-gray-400 text-sm">Plat Number</Text>
+          <Text className="text-gray-400 text-sm">Plate Number</Text>
           <Text className="text-gray-700 font-semibold">
             {plateNumber || "Loading..."}
           </Text>

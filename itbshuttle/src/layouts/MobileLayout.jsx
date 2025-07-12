@@ -11,8 +11,8 @@ export default function MobileLayout({ children }) {
   const location = useLocation();
 
   return (
-    <div className="full-viewport-height w-screen mx-auto bg-white flex flex-col overflow-hidden relative z-0">
-      <div className="absolute -top-10 w-screen h-[200px] bg-[#5A82FC] rounded-b-[200%] -z-10" />
+    <div className="full-viewport-height w-[430px] max-w-full mx-auto bg-white flex flex-col overflow-hidden relative z-0">
+      <div className="absolute -top-10 w-[430px] max-w-full h-[200px] bg-[#5A82FC] rounded-b-[200%] -z-10" />
       {children}
 
       {/* Tabs */}

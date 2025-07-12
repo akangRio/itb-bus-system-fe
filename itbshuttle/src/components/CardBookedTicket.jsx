@@ -4,12 +4,13 @@ import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import clsx from "clsx";
 import { cancelTicket } from "../services/schedules";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
 dayjs.extend(duration);
+dayjs.extend(customParseFormat);
 
 export default function CardBookedTicket({ ticket, onCancelSuccess }) {
   const navigate = useNavigate();
-
   /** ─────────────── Local state ─────────────── */
   const [timeLeft, setTimeLeft] = useState("—");
   const [confirmOpen, setConfirmOpen] = useState(false); // ✨ NEW
@@ -116,7 +117,7 @@ export default function CardBookedTicket({ ticket, onCancelSuccess }) {
         {/* Right column */}
         <div className="flex flex-col items-end shrink-0">
           <span className="text-xs text-gray-500">{scheduleDate}</span>
-          {ticket.status !== "finished" && (
+          {ticket.checkin_status !== "checked in" && (
             <span className="text-[11px] text-gray-400">⏱ {timeLeft}</span>
           )}
 

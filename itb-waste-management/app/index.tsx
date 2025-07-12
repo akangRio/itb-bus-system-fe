@@ -8,6 +8,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -57,6 +58,19 @@ export default function LoginScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View className="flex-1 items-center justify-center bg-white">
         <View className="w-full max-w-md space-y-4 mb-10 px-7">
+          <Image
+            source={require("../assets/images/institut-teknologi-bandung.png")}
+            style={{
+              width: 120,
+              height: 120,
+              resizeMode: "contain",
+              alignSelf: "center",
+              marginTop: -50,
+            }}
+          />
+          <Text className="my-10 text-4xl self-center">
+            ITB Waste Management
+          </Text>
           <TextInput
             placeholder="Nomor Plat"
             placeholderTextColor="#CBD5E0"

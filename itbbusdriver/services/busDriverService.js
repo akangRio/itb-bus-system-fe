@@ -36,8 +36,6 @@ export const getTrips = async (date) => {
       params: { date }, // date in YYYY-MM-DD
       headers: {
         Authorization: `Bearer ${token}`,
-        Cookie:
-          ".Tunnels.Relay.WebForwarding.Cookies=CfDJ8Cs4yarcs6pKkdu0hlKHsZsPUsj_jVC4PJ7xB5Bk9kf1k0LutNDElP8ONbXW3sVX_lz-Si0mRcDDTf7FO7ts9edUBTJdXt00vNgdrkqtTE9pIPk_BlGwkOExxfg93VViphT-8KRSV98hYfIZYNCM6nHT4AMH_aBLrZDzKfQhGXxIsOTd0D4yvf5lpIrrx9uSSCko0TL-23tiL-67DYG8Q29pi2EEdv7xfRH_FBoLBwgKgF8CJQhGzJBBTiwFvtmZ00w-6keshuF17aN-S9ZtRuIl54hOn2w3kA2YDIqzZ3zS_D4iUCqgYbtcFXGqPC72x_IQ2ijEXjtpLToX9XU_5pta9k7H3-X03GffaENEigBGzjQIa4OjrwQ2PNTkXCzRL2bi9zx2PIHd5fDa_Wqs2abArPxY4zRbicSuu03P8aDLRsf4GdNRkW-UxkPTPYIokV7_1dnkP0fLJlXqAHFUZ9JrEhkn6tj5bVeiCaNJvPlzUp6mVc4VZV9JXgD8xVyFVGcxTzsW6T8z6ut6y_l77tUV2qky3xIJ0Hx_ZZ6WdIjgpGeKIEC5fHFKtjd7uhKp0-bDP8EWDIsQ8wiA6UtPfmvuif7JjlRLLu20xtL6Y6kR4ne_yZftIDY21gACqZI20Svehtqsgd-wa78szDgSNeuV4E8_2afGrJopZzsNJG6_EdMRiTy5q5Q7V-ZJoejv39kfmYoawoLH4w-dWyVtmlYDwkvhp0Ck2olxFa-xeLzjYVSLCNzVrgZ-UMFb1q3oM9IeJkF2cKA8wVRXF041JwHq-rW2wRc2-QHEayGhptYYsEtV6351tcQP0y2VJg3IMOO2ZQ9vs9GeKVYzeejw9t6ViyInwtvjocJvTboK_kw4vZDY3BJYaLFy7IEIjgR9fSrV2O9pZmqgSD9QvX_CgcXrdPrNzZSJuQ163lvo9Uwm",
       },
     });
 

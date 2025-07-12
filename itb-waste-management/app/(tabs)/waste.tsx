@@ -32,7 +32,6 @@ export default function WasteScreen() {
   const [loading, setLoading] = useState(false);
   const [trashFilter, setTrashFilter] = useState<string | null>(null);
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
 
   const fetchSchedule = async (date: Date) => {
     try {
@@ -48,14 +47,12 @@ export default function WasteScreen() {
           (item: any) => !item.collected,
         );
         if (hasUncollected) {
-          setCurrentSessionIndex(i);
           setTrashFilter(session.trash_type);
           return;
         }
       }
 
       // All sessions completed
-      setCurrentSessionIndex(result.length - 1);
       setTrashFilter(result[result.length - 1]?.trash_type ?? null);
     } catch (err) {
       console.error("Failed to fetch schedule:", err);
@@ -68,9 +65,10 @@ export default function WasteScreen() {
     fetchSchedule(selectedDate);
   }, [selectedDate]);
 
-  const filteredSchedules = schedules.filter(
-    (session) => session.trash_type === trashFilter,
-  );
+  const currentIndex = schedules.findIndex((s) => s.trash_type === trashFilter);
+
+  const filteredSchedules =
+    currentIndex !== -1 ? [schedules[currentIndex]] : [];
 
   const currentSession = filteredSchedules[0];
   const isSessionCompleted = currentSession?.report_item.every(
@@ -131,11 +129,11 @@ export default function WasteScreen() {
         {/* Show Next Session Button */}
         {!loading &&
           isSessionCompleted &&
-          currentSessionIndex < schedules.length - 1 && (
+          currentIndex !== -1 &&
+          currentIndex < schedules.length - 1 && (
             <Pressable
               onPress={() => {
-                const nextSession = schedules[currentSessionIndex + 1];
-                setCurrentSessionIndex(currentSessionIndex + 1);
+                const nextSession = schedules[currentIndex + 1];
                 setTrashFilter(nextSession.trash_type);
               }}
               className="bg-blue-500 rounded-xl py-3 mt-6 mx-auto px-8"
@@ -158,7 +156,7 @@ export default function WasteScreen() {
           <View className="flex-1 justify-center items-center bg-black/30">
             <View className="bg-white p-4 rounded-xl w-64 items-center">
               {schedules.map((s, index) => {
-                const disabled = index > currentSessionIndex;
+                const disabled = currentIndex !== -1 && index > currentIndex;
                 return (
                   <Pressable
                     key={s.trash_type}

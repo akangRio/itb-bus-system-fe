@@ -24,7 +24,6 @@ export default function PhotoPreview() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    console.log(uri, id);
     if (!uri || !id) return Alert.alert("Error", "Data tidak lengkap.");
     if (trashOk === null)
       return Alert.alert("Validasi", "Pilih apakah sampah sesuai.");
