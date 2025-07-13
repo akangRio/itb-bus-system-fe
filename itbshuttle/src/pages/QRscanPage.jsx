@@ -6,16 +6,14 @@ import { checkinQR, manualCheckIn } from "../services/schedules";
 
 export default function QRscanPage() {
   const navigate = useNavigate();
-  const { state } = useLocation(); // ← ticket id was passed from CardBookedTicket
-  const ticketId = state?.id; // undefined if user opened page directly
+  const { state } = useLocation();
+  const ticketId = state?.id;
 
-  /* ───── QR scanner setup ───── */
   const qrRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
   const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-  // run once
   useEffect(() => {
     if (!qrRef.current) {
       qrRef.current = new Html5Qrcode("reader");
