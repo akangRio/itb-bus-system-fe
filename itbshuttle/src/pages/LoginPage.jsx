@@ -1,17 +1,36 @@
 import { useNavigate } from "react-router-dom";
 import itbLogo from "../assets/institut-teknologi-bandung.png";
+import { useEffect } from "react";
 
 export function LoginPage() {
+  const SSO_BASE = import.meta.env.VITE_SSO_BASE_URL;
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    const mockToken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc1M2I3N2NmLTVmYTQtNDFkNi1iZjEwLTY0MmE5NGMwZTE5MSIsInJvbGVfaWQiOjEsImlhdCI6MTc1MjA0MzA4OCwiZXhwIjoxNzUyMzAyMjg4fQ.NeQERirTWZSYY97peShMHO9qO7Hxqwe6aG9KdHS2Fbc";
+    const callbackUrl = `${window.location.origin}`;
+    const redirectUrl = `${SSO_BASE}/login/auth?callbackUrl=${encodeURIComponent(
+      callbackUrl,
+    )}`;
 
-    localStorage.setItem("accessToken", mockToken); // save token
-
-    navigate("/home");
+    window.location.href = redirectUrl;
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      localStorage.setItem("accessToken", token);
+
+      params.delete("token");
+      const cleanUrl = `${window.location.origin}${window.location.pathname}${
+        params.toString() ? "?" + params.toString() : ""
+      }`;
+      window.history.replaceState({}, "", cleanUrl);
+
+      navigate("/home", { replace: true });
+    }
+  }, [navigate]);
 
   return (
     <>
@@ -27,8 +46,6 @@ export function LoginPage() {
             ITB Shuttle &amp; Bus Schedule
           </h3>
         </div>
-
-        {/* button sits at bottom of the viewport */}
       </div>
       <button
         onClick={handleLogin}

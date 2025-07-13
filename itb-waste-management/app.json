@@ -17,7 +17,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "jaramba.waste.management"
     },
     "web": {
       "bundler": "metro",
@@ -46,9 +47,7 @@
         "projectId": "4c63834d-5ce1-4bc1-afd0-afbd4e10f72e"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/4c63834d-5ce1-4bc1-afd0-afbd4e10f72e"
     }

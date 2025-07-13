@@ -3,7 +3,6 @@ const API_PASSWORD = import.meta.env.VITE_API_PASSWORD;
 const API_USERNAME = import.meta.env.VITE_API_USERNAME;
 
 export const getSchedules = async (date, origin) => {
-  console.log(date, origin);
   const token = localStorage.getItem("accessToken");
   if (!token) throw new Error("No token found");
 

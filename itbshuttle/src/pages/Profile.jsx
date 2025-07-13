@@ -8,7 +8,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
 
   const handleLogout = () => {
-    navigate("/home");
+    localStorage.removeItem("accessToken");
+    navigate("/");
   };
 
   useEffect(() => {
