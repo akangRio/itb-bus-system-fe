@@ -90,7 +90,7 @@ export default function Home() {
       {/* Header */}
       <div className="h-16 content-center bg-[#5A82FC]">
         <div className="text-xl text-center text-white">
-          Hi, {localStorage.getItem("name")} !
+          Hi, {localStorage.getItem("name") || "Guest"}!
         </div>
       </div>
 

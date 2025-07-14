@@ -27,7 +27,7 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F8FC]">
+    <div className="flex-1 flex flex-col bg-[#F7F8FC]">
       {/* Header */}
       <div className="bg-[#5A82FC] rounded-b-[40px] pb-10 pt-16 flex flex-col items-center">
         <h1 className="text-white text-lg font-bold">Profile</h1>
@@ -64,7 +64,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Logout Button */}
-      <div className="bg-[#DCE6FF] rounded-t-[50px] px-6 pt-8 pb-16 flex justify-center">
+      <div className="bg-[#DCE6FF] rounded-t-[110px] px-6 pt-2 pb-18 flex justify-center content-start">
         <button
           onClick={handleLogout}
           className="bg-white border border-[#5A82FC] px-12 py-3 rounded-full shadow-md text-[#5A82FC] font-semibold text-base"

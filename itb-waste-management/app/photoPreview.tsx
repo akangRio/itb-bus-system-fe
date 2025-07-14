@@ -47,7 +47,7 @@ export default function PhotoPreview() {
       await submitReport({
         id,
         match: trashOk,
-        collected: true,
+        collected: weight,
         note,
         image: `data:image/jpeg;base64,${base64Image}`,
       });
