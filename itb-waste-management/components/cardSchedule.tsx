@@ -18,7 +18,6 @@ export default function CardSchedule({
   const router = useRouter();
 
   const handleCamera = () => {
-    console.log("Navigating to camera for:", id);
     router.push({
       pathname: "/camera",
       params: { id }, // pass the report_item id
