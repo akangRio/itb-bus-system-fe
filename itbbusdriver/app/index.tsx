@@ -58,8 +58,8 @@ export default function LoginScreen() {
   /* ────────── UI ────────── */
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-white"
-      keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ flex: 1 }}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView
