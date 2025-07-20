@@ -20,15 +20,12 @@ export default function PhotoPreview() {
   const { uri, id } = useLocalSearchParams<{ uri?: string; id?: string }>();
   const router = useRouter();
 
-  const [trashOk, setTrashOk] = useState<boolean | null>(null);
   const [weight, setWeight] = useState("");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!uri || !id) return Alert.alert("Error", "Data tidak lengkap.");
-    if (trashOk === null)
-      return Alert.alert("Validasi", "Pilih apakah sampah sesuai.");
     if (!weight) return Alert.alert("Validasi", "Masukkan berat sampah.");
 
     try {
@@ -48,7 +45,7 @@ export default function PhotoPreview() {
 
       await submitReport({
         id,
-        match: trashOk,
+        match: true,
         collected: weight,
         note,
         image: `data:image/jpeg;base64,${base64Image}`,
@@ -100,35 +97,7 @@ export default function PhotoPreview() {
           </View>
 
           {/* Form */}
-          <View className="flex-row justify-between">
-            <View className="mb-4">
-              <Text className="font-semibold text-gray-700 mb-1">
-                Sampah Sesuai
-              </Text>
-              <View className="bg-white shadow-sm rounded-lg w-40">
-                <View className="flex-col space-x-6 m-4 gap-2">
-                  <Pressable
-                    onPress={() => setTrashOk(true)}
-                    className="flex-row items-center space-x-1"
-                  >
-                    <View
-                      className={`w-4 h-4 rounded-full border border-gray-400 ${trashOk === true ? "bg-blue-500" : ""}`}
-                    />
-                    <Text>Ya</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setTrashOk(false)}
-                    className="flex-row items-center space-x-1"
-                  >
-                    <View
-                      className={`w-4 h-4 rounded-full border border-gray-400 ${trashOk === false ? "bg-blue-500" : ""}`}
-                    />
-                    <Text>Tidak</Text>
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-
+          <View className="flex-row">
             <View className="mb-4 mr-2">
               <Text className="font-semibold text-gray-700 mb-1">
                 Berat Sampah

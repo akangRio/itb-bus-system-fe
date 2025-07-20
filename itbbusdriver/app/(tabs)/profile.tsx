@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Linking } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const [driverName, setDriverName] = useState("Loading...");
   const [plateNumber, setPlateNumber] = useState("Loading...");
+  const [contact, setContact] = useState("Loading...");
 
   const handleLogout = async () => {
     try {
@@ -18,12 +19,17 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleContactSupport = () => {
+    Linking.openURL(contact);
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await getDriverProfile();
         setDriverName(data.driver_name);
         setPlateNumber(data.plate_number);
+        setContact(data.contact);
       } catch (err) {
         console.error("Failed to fetch profile:", err);
         setDriverName("Unknown");
@@ -57,11 +63,14 @@ export default function ProfileScreen() {
       <View className="flex-1" />
 
       {/* Contact Support */}
-      <View className="bg-[#2F4B87] py-4 items-center">
+      <Pressable
+        onPress={handleContactSupport}
+        className="bg-[#2F4B87] py-4 items-center"
+      >
         <Text className="text-white font-medium text-base">
           Contact Support
         </Text>
-      </View>
+      </Pressable>
 
       {/* Logout Button */}
       <View className="bg-[#DCE6FF] rounded-t-[50px] px-6 pt-8 pb-16 items-center">

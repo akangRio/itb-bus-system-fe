@@ -1,10 +1,11 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Linking } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 
 export default function ProfileScreen() {
   const router = useRouter();
-
+  const [waUrl, setWaUrl] = useState<any>("");
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem("driverToken");
@@ -14,6 +15,11 @@ export default function ProfileScreen() {
     }
   };
 
+  useEffect(() => {
+    AsyncStorage.getItem("contact").then((url): any => {
+      setWaUrl(url);
+    });
+  }, [waUrl]);
   return (
     <View className="flex-1 bg-[#F7F8FC] justify-between">
       {/* Header */}
@@ -37,11 +43,16 @@ export default function ProfileScreen() {
 
       {/* Logout Button */}
       <View>
-        <View className="bg-[#2F4B87] py-4 items-center">
+        <Pressable
+          onPress={() => {
+            Linking.openURL(waUrl);
+          }}
+          className="bg-[#2F4B87] py-4 items-center"
+        >
           <Text className="text-white font-medium text-base">
             Contact Support
           </Text>
-        </View>
+        </Pressable>
         <View className="bg-[#DCE6FF] rounded-t-[50px] px-6 pt-8 pb-16 items-center">
           <Pressable
             onPress={handleLogout}

@@ -48,6 +48,9 @@ export default function LoginScreen() {
 
       await AsyncStorage.setItem("driverToken", data.token); // Save token
       await AsyncStorage.setItem("driverPlate", plateNumber);
+      await AsyncStorage.setItem("map", data.map);
+      await AsyncStorage.setItem("contact", data.contact);
+
       router.replace("/(tabs)/waste");
     } catch (err) {
       console.error("❌ Login failed:", err);

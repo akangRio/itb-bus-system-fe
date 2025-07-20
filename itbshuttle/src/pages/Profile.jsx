@@ -12,6 +12,10 @@ export default function ProfilePage() {
     navigate("/");
   };
 
+  const handleContactSupport = () => {
+    window.open(profile.contact);
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -59,7 +63,10 @@ export default function ProfilePage() {
       <div className="flex-grow" />
 
       {/* Contact Support */}
-      <div className="bg-[#2F4B87] py-4 flex justify-center">
+      <div
+        onClick={handleContactSupport}
+        className="bg-[#2F4B87] py-4 flex justify-center"
+      >
         <p className="text-white font-medium text-base">Contact Support</p>
       </div>
 

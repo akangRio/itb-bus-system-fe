@@ -111,6 +111,10 @@ export default function CardBookedTicket({ ticket, onCancelSuccess }) {
               Arrival&nbsp;Time&nbsp;:&nbsp;
               <span className="text-gray-700">{ticket.arrival_time}</span>
             </p>
+            <p>
+              Plate Number:&nbsp;
+              <span className="text-gray-700">{ticket.plate_number}</span>
+            </p>
           </div>
         </div>
 
