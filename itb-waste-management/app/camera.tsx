@@ -7,7 +7,7 @@ import {
 import { useState, useRef } from "react";
 import { Text, View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import * as ImageManipulator from "expo-image-manipulator";
 
 export default function CameraPage() {
@@ -15,7 +15,16 @@ export default function CameraPage() {
   const [facing, setFacing] = useState<CameraType>("back");
   const cameraRef = useRef<CameraView>(null);
   const [capturing, setCapturing] = useState(false);
+  const [cameraActive, setCameraActive] = useState(true); // control active state
   const { id } = useLocalSearchParams<{ id: string }>();
+
+  // Stop camera when leaving screen
+  useFocusEffect(() => {
+    setCameraActive(true); // active when focused
+    return () => {
+      setCameraActive(false); // stop when unfocused
+    };
+  });
 
   if (!permission) return <View />;
   if (!permission.granted) {
@@ -47,7 +56,7 @@ export default function CameraPage() {
           { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG },
         );
 
-        router.push(
+        router.replace(
           `/photoPreview?uri=${encodeURIComponent(manipulated.uri)}&id=${id}`,
         );
       } catch (err) {
@@ -60,7 +69,12 @@ export default function CameraPage() {
 
   return (
     <View className="flex-1 bg-black">
-      <CameraView ref={cameraRef} style={{ flex: 1 }} facing={facing} />
+      <CameraView
+        ref={cameraRef}
+        style={{ flex: 1 }}
+        facing={facing}
+        active={cameraActive} // stop camera when not focused
+      />
 
       {/* Bottom Controls */}
       <View className="absolute bottom-10 w-full px-10 flex-row justify-between items-center">
