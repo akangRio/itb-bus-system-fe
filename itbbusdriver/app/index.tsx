@@ -27,7 +27,7 @@ export default function LoginScreen() {
   useEffect(() => {
     (async () => {
       const token = await AsyncStorage.getItem("driverToken");
-      if (token) router.replace("/(tabs)/schedule");
+      if (token) router.replace("/(tabs)/qr");
     })();
   }, []);
 
@@ -44,7 +44,7 @@ export default function LoginScreen() {
         ["driverToken", data.token],
         ["driverPlate", plateNumber],
       ]);
-      router.replace("/(tabs)/schedule");
+      router.replace("/(tabs)/qr");
     } catch (err) {
       console.error("❌ Login failed:", err);
       Alert.alert("Login Failed", "Incorrect plate number or password.");

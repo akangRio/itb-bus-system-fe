@@ -157,3 +157,23 @@ export const sendLiveTracking = async (id, lat, long) => {
     throw new Error(msg);
   }
 };
+
+export const getGeofencing = async (location) => {
+  const token = await AsyncStorage.getItem("driverToken");
+  if (!token) throw new Error("No token found");
+
+  try {
+    const response = await api.get(`/driver/geofencing`, {
+      params: { location },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data.data;
+  } catch (error) {
+    const msg =
+      error.response?.data?.message || "Failed to fetch geofencing data";
+    throw new Error(msg);
+  }
+};

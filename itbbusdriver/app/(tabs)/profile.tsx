@@ -81,6 +81,8 @@ export default function ProfileScreen() {
           <Text className="text-[#5A82FC] font-semibold text-base">Logout</Text>
         </Pressable>
       </View>
+
+      <View className="h-20"></View>
     </View>
   );
 }
