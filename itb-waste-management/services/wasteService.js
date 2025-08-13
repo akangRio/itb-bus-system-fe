@@ -70,7 +70,9 @@ export const submitReport = async ({ id, match, collected, note, image }) => {
 
     return response.data.data;
   } catch (error) {
+    console.log(error.message);
     const msg = error.response?.data?.message || "Failed to submit report";
+    console.log(msg);
     throw new Error(msg);
   }
 };
