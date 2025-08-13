@@ -20,6 +20,7 @@ import * as FileSystem from "expo-file-system";
 import { submitReport } from "@/services/wasteService";
 import { usePhotoStore } from "@/store/photoStore";
 import { useReportFormStore } from "@/store/formStore";
+import * as ImageManipulator from "expo-image-manipulator";
 
 export default function PhotoPreview() {
   const { uri, id } = useLocalSearchParams<{ uri?: string; id?: string }>();
@@ -50,28 +51,43 @@ export default function PhotoPreview() {
   const handleSubmit = async () => {
     if (!uris || uris.length === 0 || !id)
       return Alert.alert("Error", "Data tidak lengkap.");
-    if (!weight) return Alert.alert("Validasi", "Masukkan berat sampah.");
     if (isTrashCorrect == null)
       return Alert.alert("Validasi", "Pilih apakah sampah sesuai.");
+    if (!weight) return Alert.alert("Validasi", "Masukkan berat sampah.");
+    if (!note || note.trim() === "")
+      return Alert.alert("Validasi", "Isi laporan tambahan.");
 
     try {
       setLoading(true);
-
       const imagesBase64: string[] = [];
 
       for (const uri of uris) {
-        const fileInfo: any = await FileSystem.getInfoAsync(uri);
+        // 🔹 Compress the image before reading as base64
+        const manipulatedImage = await ImageManipulator.manipulateAsync(
+          uri,
+          [{ resize: { width: 800 } }], // resize to max width 1280px
+          { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG },
+        );
+
+        // Optional: check file size after compression
+        const fileInfo: any = await FileSystem.getInfoAsync(
+          manipulatedImage.uri,
+        );
         if (fileInfo.size && fileInfo.size > 4 * 1024 * 1024) {
           setLoading(false);
           return Alert.alert(
             "Ukuran Gambar Besar",
-            "Salah satu gambar melebihi 4MB.",
+            "Salah satu gambar melebihi 4MB meskipun sudah dikompresi.",
           );
         }
 
-        const base64Image = await FileSystem.readAsStringAsync(uri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
+        // Convert to Base64
+        const base64Image = await FileSystem.readAsStringAsync(
+          manipulatedImage.uri,
+          {
+            encoding: FileSystem.EncodingType.Base64,
+          },
+        );
 
         imagesBase64.push(`data:image/jpeg;base64,${base64Image}`);
       }
@@ -81,7 +97,7 @@ export default function PhotoPreview() {
         match: isTrashCorrect,
         collected: weight,
         note,
-        image: imagesBase64, // now an array
+        image: imagesBase64,
       });
 
       Alert.alert("Sukses", "Laporan berhasil dikirim.", [
@@ -95,6 +111,7 @@ export default function PhotoPreview() {
         },
       ]);
     } catch (err: any) {
+      console.log(err.message);
       Alert.alert("Gagal", err.message || "Terjadi kesalahan saat mengirim.");
     } finally {
       setLoading(false);
