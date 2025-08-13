@@ -55,6 +55,13 @@ export default function QrScreen() {
   const tripRef = useRef<Trip | null>(null);
 
   const liveLocationInterval = useRef<NodeJS.Timeout | null>(null);
+  const waitingToEnterOrigin = useRef(false);
+
+  const resetGeofenceFlags = () => {
+    hasLeftOrigin.current = false;
+    hasArrivedDestination.current = false;
+    waitingToEnterOrigin.current = false;
+  };
 
   const isInsideGeofence = (
     lat: number,
@@ -190,6 +197,7 @@ export default function QrScreen() {
       setStatus("WAITING");
       originGeofence.current = null;
       destinationGeofence.current = null;
+      resetGeofenceFlags();
       return null;
     }
 
@@ -198,21 +206,35 @@ export default function QrScreen() {
     setStatus(selectedTrip.status === "on going" ? "OTW" : "WAITING");
     setQr(await showQR(selectedTrip.id));
 
-    // Map geofence locations
+    // Map geofence
     const locationCodeMap: Record<string, string> = {
       Bandung: "BDG",
       Jatinangor: "JTNG",
     };
-
     const [originName, destinationName] = selectedTrip.route
       ?.split(" → ")
       .map((s) => s.trim()) || ["", ""];
+    originGeofence.current = await getGeofencing(
+      locationCodeMap[originName] || "",
+    );
+    destinationGeofence.current = await getGeofencing(
+      locationCodeMap[destinationName] || "",
+    );
 
-    const originCode = locationCodeMap[originName] || "";
-    const destinationCode = locationCodeMap[destinationName] || "";
-
-    originGeofence.current = await getGeofencing(originCode);
-    destinationGeofence.current = await getGeofencing(destinationCode);
+    // 🔹 Check initial position to set waitingToEnterOrigin
+    const { lat, long } = await getCurrentLocation();
+    if (
+      originGeofence.current &&
+      !isInsideGeofence(
+        parseFloat(lat),
+        parseFloat(long),
+        originGeofence.current,
+      )
+    ) {
+      waitingToEnterOrigin.current = true; // We must enter before we can leave
+    } else {
+      waitingToEnterOrigin.current = false; // Already inside, can detect leave
+    }
 
     return selectedTrip;
   };
@@ -248,19 +270,29 @@ export default function QrScreen() {
           const { latitude, longitude } = pos.coords;
           setLocation({ latitude, longitude });
 
-          // Check geofences if we have them
-          if (originGeofence.current && !hasLeftOrigin.current) {
+          // 🟢 Handle Origin Geofence
+          if (originGeofence.current) {
             const insideOrigin = isInsideGeofence(
               latitude,
               longitude,
               originGeofence.current,
             );
-            if (!insideOrigin) {
+
+            if (waitingToEnterOrigin.current && insideOrigin) {
+              waitingToEnterOrigin.current = false; // Now allowed to leave
+            }
+
+            if (
+              !waitingToEnterOrigin.current &&
+              !hasLeftOrigin.current &&
+              !insideOrigin
+            ) {
               hasLeftOrigin.current = true;
               onLeaveOrigin();
             }
           }
 
+          // 🟢 Handle Destination Geofence
           if (
             destinationGeofence.current &&
             hasLeftOrigin.current &&

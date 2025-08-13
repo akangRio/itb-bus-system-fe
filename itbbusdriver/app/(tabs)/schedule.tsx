@@ -8,7 +8,7 @@ import {
   Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   endTrip,
@@ -23,6 +23,7 @@ import DatePickerModal from "@/components/datePickerComponent";
 import { Feather } from "@expo/vector-icons";
 import "dayjs/locale/id";
 import * as Location from "expo-location";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function ScheduleScreen() {
   dayjs.locale("id");
@@ -74,9 +75,11 @@ export default function ScheduleScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchTrips();
-  }, [selectedDate]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchTrips();
+    }, [selectedDate]),
+  );
 
   const handleShowQR = async (tripId: string) => {
     try {
