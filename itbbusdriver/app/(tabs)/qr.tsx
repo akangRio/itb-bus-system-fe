@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import * as Location from "expo-location";
 import dayjs from "dayjs";
 import {
@@ -18,6 +18,7 @@ import {
   endTrip,
 } from "@/services/busDriverService";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 type Trip = {
   id: string;
@@ -56,6 +57,10 @@ export default function QrScreen() {
 
   const liveLocationInterval = useRef<NodeJS.Timeout | null>(null);
   const waitingToEnterOrigin = useRef(false);
+  const [qrAvailableTime, setQrAvailableTime] = useState<dayjs.Dayjs | null>(
+    null,
+  );
+  const [qrCountdown, setQrCountdown] = useState<string | null>(null);
 
   const resetGeofenceFlags = () => {
     hasLeftOrigin.current = false;
@@ -157,7 +162,7 @@ export default function QrScreen() {
     const trips: Trip[] = await getTrips(today);
     const now = dayjs();
 
-    // Only consider trips that are on going or incoming
+    // Only consider trips that are ongoing or upcoming
     const validTrips = trips.filter(
       (t) => t.status === "on going" || t.status === "incoming",
     );
@@ -171,13 +176,15 @@ export default function QrScreen() {
 
     let selectedTrip: Trip | null = null;
 
-    // 1️⃣ Trip exactly matching current time
+    // 1️⃣ Ongoing trip (now between departure and arrival)
     selectedTrip =
-      sortedTrips.find((t) =>
-        now.isSame(dayjs(`${today} ${t.departure_time}`), "minute"),
+      sortedTrips.find(
+        (t) =>
+          now.isAfter(dayjs(`${today} ${t.departure_time}`)) &&
+          now.isBefore(dayjs(`${today} ${t.arrival_time}`)),
       ) || null;
 
-    // 2️⃣ If none, next trip after now
+    // 2️⃣ If none, the next upcoming trip after now
     if (!selectedTrip) {
       selectedTrip =
         sortedTrips.find((t) =>
@@ -185,15 +192,17 @@ export default function QrScreen() {
         ) || null;
     }
 
-    // 3️⃣ If none, earliest trip of the day
+    // 3️⃣ If none, just take the earliest trip of the day
     if (!selectedTrip && sortedTrips.length > 0) {
       selectedTrip = sortedTrips[0];
     }
 
-    // 4️⃣ If still none, just null
+    // 4️⃣ If still none, reset and exit
     if (!selectedTrip) {
       setTrip(null);
       setQr(null);
+      setQrAvailableTime(null);
+      setQrCountdown(null);
       setStatus("WAITING");
       originGeofence.current = null;
       destinationGeofence.current = null;
@@ -201,12 +210,37 @@ export default function QrScreen() {
       return null;
     }
 
-    // ✅ If found, update state
+    // ✅ Found a trip, update state
     setTrip(selectedTrip);
     setStatus(selectedTrip.status === "on going" ? "OTW" : "WAITING");
-    setQr(await showQR(selectedTrip.id));
 
-    // Map geofence
+    try {
+      const qr = await showQR(selectedTrip.id);
+      setQr(qr);
+      setQrAvailableTime(null);
+      setQrCountdown(null);
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || err?.message || "";
+      if (errorMsg.includes("Showing QR time has not been exceeded")) {
+        const availableAt = dayjs(`${today} ${selectedTrip.departure_time}`);
+        setQrAvailableTime(availableAt);
+        setQr(null);
+      } else {
+        console.error("❌ QR fetch failed:", err);
+        setQr(null);
+        setQrAvailableTime(null);
+        setQrCountdown(null);
+      }
+    }
+
+    // Geofence handling
+    if (selectedTrip.status === "on going") {
+      hasLeftOrigin.current = true;
+      hasArrivedDestination.current = false;
+    } else {
+      resetGeofenceFlags();
+    }
+
     const locationCodeMap: Record<string, string> = {
       Bandung: "BDG",
       Jatinangor: "JTNG",
@@ -221,7 +255,6 @@ export default function QrScreen() {
       locationCodeMap[destinationName] || "",
     );
 
-    // 🔹 Check initial position to set waitingToEnterOrigin
     const { lat, long } = await getCurrentLocation();
     if (
       originGeofence.current &&
@@ -231,13 +264,42 @@ export default function QrScreen() {
         originGeofence.current,
       )
     ) {
-      waitingToEnterOrigin.current = true; // We must enter before we can leave
+      waitingToEnterOrigin.current = true;
     } else {
-      waitingToEnterOrigin.current = false; // Already inside, can detect leave
+      waitingToEnterOrigin.current = false;
     }
 
     return selectedTrip;
   };
+
+  useEffect(() => {
+    if (!qrAvailableTime) return;
+
+    const interval = setInterval(() => {
+      const diff = qrAvailableTime.diff(dayjs(), "second");
+      if (diff <= 0) {
+        clearInterval(interval);
+        setQrCountdown(null);
+        selectTripAndSetState(); // auto-refresh when time is up
+        return;
+      }
+
+      const minutes = Math.floor(diff / 60);
+      const seconds = diff % 60;
+      setQrCountdown(`${minutes}m ${seconds}s`);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [qrAvailableTime]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const run = async () => {
+        await selectTripAndSetState();
+      };
+      run();
+    }, []),
+  );
 
   useEffect(() => {
     (async () => {
@@ -329,10 +391,28 @@ export default function QrScreen() {
             : "- → -"}
         </Text>
       </View>
-      <View className="bg-white rounded-xl p-3">
-        <Text>Departure Time: {trip?.departure_time || "-"}</Text>
-        <Text>Arrival Time: {trip?.arrival_time || "-"}</Text>
-        <Text>Available Seats: {trip?.checked_in ?? "-"}</Text>
+      <View className="bg-white rounded-xl p-3 flex-row items-center justify-between">
+        <View>
+          <Text>Departure Time: {trip?.departure_time || "-"}</Text>
+          <Text>Arrival Time: {trip?.arrival_time || "-"}</Text>
+          <Text>Available Seats: {trip?.checked_in ?? "-"}</Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={async () => {
+            setLoading(true);
+            try {
+              await selectTripAndSetState();
+            } catch (err) {
+              console.error(err);
+            } finally {
+              setLoading(false);
+            }
+          }}
+          className="p-2 rounded-full bg-blue-400"
+        >
+          <Ionicons name="refresh-outline" size={24} color="#FFF" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -348,6 +428,14 @@ export default function QrScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-gray-100">
       <TopInfoCard />
+
+      {/* Countdown info when QR is not yet available */}
+      {qrCountdown && (
+        <Text className="text-orange-500 text-lg mb-4 font-bold">
+          QR tersedia dalam {qrCountdown}
+        </Text>
+      )}
+
       {status === "WAITING" && trip && qr ? (
         <View className="items-center">
           <Image source={{ uri: qr.qr_code }} className="w-64 h-64 mb-4" />
@@ -371,15 +459,16 @@ export default function QrScreen() {
             <Image source={{ uri: qr.qr_code }} className="w-64 h-64 mb-4" />
           )}
         </View>
-      ) : (
+      ) : !trip ? (
         <Text className="text-gray-500 mt-4">Tidak ada trip yang tersedia</Text>
-      )}
-      {location && (
+      ) : null}
+
+      {/*{location && (
         <Text className="mt-4 text-gray-500">
           📍 Lat: {location.latitude.toFixed(5)}, Long:{" "}
           {location.longitude.toFixed(5)}
         </Text>
-      )}
+      )}*/}
     </View>
   );
 }

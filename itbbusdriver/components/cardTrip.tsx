@@ -58,7 +58,11 @@ export default function CardTrip({
     }
   };
 
-  const isButtonDisabled = trip.status === "finished" || loading;
+  const isButtonDisabled =
+    trip.status === "finished" ||
+    loading ||
+    trip.status === "incoming" ||
+    trip.status === "on going";
 
   return (
     <View className="bg-white mx-auto my-4 w-[95%] rounded-[20px] px-6 py-4 shadow-md">
@@ -108,7 +112,11 @@ export default function CardTrip({
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text className="text-white font-semibold text-base">
-                  {trip.status === "finished" ? "Ended" : "Show QR"}
+                  {trip.status === "finished"
+                    ? "Ended"
+                    : trip.status === "incoming"
+                      ? "Available"
+                      : "On Going"}
                 </Text>
               )}
             </Pressable>
